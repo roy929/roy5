@@ -1,0 +1,61 @@
+import socket
+import tkinter.messagebox as tm
+import tkinter
+import time
+from sockets import voice
+
+
+def ask(name):
+    root = tkinter.Tk()
+    root.withdraw()
+    result = tm.askyesno("VoiceChat", "Would you like to answer a call from {0}?".format(name))
+    return result
+
+
+def wait():
+    in_chat = False
+    port = 50001
+    print('Service Started!')
+    server = socket.socket()
+    server.bind(('0.0.0.0', 50001))
+    server.listen(1)
+    (client_socket, client_address) = server.accept()
+    print("client accept from {0} at port {1}".format(client_address, port))
+
+    while not in_chat:
+        # waiting for request from a user to chat
+        msg = client_socket.recv(1024)
+        msg = msg.decode()
+        if msg.startswith('CONNECTING'):  # now we got a call
+            msg = msg.split(':')
+            if len(msg) == 2:
+                name = msg[1]
+                print('{0} called'.format(name))
+                ans = ask(name)  # ans = True/False
+            else:
+                ans = ask('')
+            client_socket.send(str(ans).encode())
+            time.sleep(1)
+            print(client_address[0])
+
+            # for now we enter chat from here
+            if str(ans) == 'True':
+                print('going to chat')
+                in_chat = True
+                a = voice.start()
+                if a == 'end':
+                    print('OVER')
+                # while True:
+                #     pass
+
+
+# this is normal chat
+def type_chat():
+    from sockets.client import Client
+    c = Client()
+    c.start()
+
+
+if __name__ == '__main__':
+    while True:
+        wait()
