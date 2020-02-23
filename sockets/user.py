@@ -20,7 +20,9 @@ def call_service(name_of_calling_user, user_ip=""):
         user_ip = SERVER_IP
     try:
         client = socket.socket()
+        print('trying to connect to service')
         client.connect((user_ip, SERVICE_PORT))
+        print('connected to service')
         msg = 'CONNECTING:{0}'.format(name_of_calling_user)
         client.send(msg.encode())
         time.sleep(2)
