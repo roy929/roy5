@@ -4,6 +4,8 @@ import tkinter
 import time
 from sockets import voice
 
+SERVICE_PORT = 50003
+
 
 def ask(name):
     root = tkinter.Tk()
@@ -14,13 +16,12 @@ def ask(name):
 
 def wait():
     in_chat = False
-    port = 50001
     print('Service Started!')
     server = socket.socket()
-    server.bind(('0.0.0.0', 50001))
+    server.bind(('0.0.0.0', SERVICE_PORT))
     server.listen(1)
     (client_socket, client_address) = server.accept()
-    print("client accept from {0} at port {1}".format(client_address, port))
+    print("client accept from {0} at port {1}".format(client_address, SERVICE_PORT))
 
     while not in_chat:
         # waiting for request from a user to chat
@@ -36,6 +37,16 @@ def wait():
                 ans = ask('')
             client_socket.send(str(ans).encode())
             time.sleep(1)
+            client_socket.close()
+            server.close()
+
+            # TEST: chat server
+            import server
+            s = server.ChatServer()
+            from threading import Thread
+            t = Thread(target=s.run)
+            t.start()
+
             print(client_address[0])
 
             # for now we enter chat from here
@@ -43,8 +54,8 @@ def wait():
                 print('going to chat')
                 in_chat = True
                 a = voice.start()
-                if a == 'end':
-                    print('OVER')
+                print(a)
+                print('OVER')
                 # while True:
                 #     pass
 

@@ -3,19 +3,21 @@ import pyaudio
 # import _thread
 from threading import Thread
 
-a = True
+run_chat = True
 # record
 CHUNK = 1024  # 512
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 20000
+SERVER_PORT = 50002
+SERVER_IP = "127.0.0.1"
 
 
 def set_up():
-    global s, receive_stream, send_stream, a
+    global s, receive_stream, send_stream, run_chat
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect(("127.0.0.1", 50000))
+    s.connect((SERVER_IP, SERVER_PORT))
 
     p = pyaudio.PyAudio()
 
@@ -26,7 +28,7 @@ def set_up():
 
 
 def receive_data():
-    while a:
+    while run_chat:
         try:
             data = s.recv(1024)
             receive_stream.write(data)
@@ -35,7 +37,7 @@ def receive_data():
 
 
 def send_data():
-    while a:
+    while run_chat:
         try:
             data = send_stream.read(CHUNK)
             s.sendall(data)
@@ -51,15 +53,15 @@ def start():
     send.start()
     # _thread.start_new_thread(receive_data, ())
     # _thread.start_new_thread(send_data, ())
-    print('waiting')
-    while True:
-        if a is False:
-            return 'end'
+    print('running')
+    recv.join()
+    s.close()
+    print('voice closed')
 
 
 def end():
-    global a
-    a = False
+    global run_chat
+    run_chat = False
 
 
 def time_end(t=15):

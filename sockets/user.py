@@ -4,8 +4,8 @@ from gui.sql import Sql
 from sockets import voice
 
 SERVER_IP = 'localhost'
-SERVER_PORT = 50000
-SERVICE_PORT = 50001
+SERVER_PORT = 50002
+SERVICE_PORT = 50003
 
 
 def get_user_ip(name):
