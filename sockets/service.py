@@ -14,8 +14,7 @@ def ask(name):
     return result
 
 
-def wait():
-    in_chat = False
+def service():
     print('Service Started!')
     server = socket.socket()
     server.bind(('0.0.0.0', SERVICE_PORT))
@@ -23,8 +22,10 @@ def wait():
     (client_socket, client_address) = server.accept()
     print("client accept from {0} at port {1}".format(client_address, SERVICE_PORT))
 
+    in_chat = False
     while not in_chat:
         # waiting for request from a user to chat
+        print('hi')
         msg = client_socket.recv(1024)
         msg = msg.decode()
         if msg.startswith('CONNECTING'):  # now we got a call
@@ -39,17 +40,13 @@ def wait():
             time.sleep(1)
             client_socket.close()
             server.close()
-
-            # TEST: chat server
-            import server
-            s = server.ChatServer()
-            from threading import Thread
-            t = Thread(target=s.run)
-            t.start()
-
             print(client_address[0])
+            # TEST: chat server
+            # main_server()
 
-            # for now we enter chat from here
+            # now we enter chat from here
+            time.sleep(2)
+            # go to main server
             if str(ans) == 'True':
                 print('going to chat')
                 in_chat = True
@@ -67,6 +64,15 @@ def type_chat():
     c.start()
 
 
+def main_server():
+    # TEST: chat server
+    import server
+    s = server.ChatServer()
+    from threading import Thread
+    t = Thread(target=s.run)
+    t.start()
+
+
 if __name__ == '__main__':
     while True:
-        wait()
+        service()
