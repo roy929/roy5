@@ -30,6 +30,7 @@ class MainPage(Thread):
         self.user_to_call.forget()
         # self.win.withdraw()
         self.start()  # threaded, the chat function
+        # find a way to know when chat ended
         self.end_call = Button(self.frame, text='End Call', command=user.end_chat)
         self.end_call.pack()
         # self.win.update()
