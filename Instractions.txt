@@ -1,0 +1,10 @@
+hi, 
+these are instraction for using my code:
+
+first, you need to use python 3.6 and import pyaudio
+
+second, you need to run 'server' and 'service' and 'firstpage'
+
+third, in 'firstpage', you need to register twice to have 2 accounts that could call each other.
+
+fourth, click login in 'firstpage', call the other user and thats it, both should be in voice chat.
