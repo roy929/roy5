@@ -1,23 +1,25 @@
 import socket
 import pyaudio
-# import _thread
 from threading import Thread
 
-run_chat = True
+
 # record
 CHUNK = 1024  # 512
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 20000
+# socket
 SERVER_PORT = 50002
 SERVER_IP = "127.0.0.1"
 
 
-def set_up():
+# connect to server and start stream
+def conn(server_ip, server_port):
     global s, receive_stream, send_stream, run_chat
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((SERVER_IP, SERVER_PORT))
+    s.connect((server_ip, server_port))
+    run_chat = True
 
     p = pyaudio.PyAudio()
 
@@ -46,15 +48,14 @@ def send_data():
 
 
 def start():
-    set_up()
+    conn(SERVER_IP, SERVER_PORT)
     recv = Thread(target=receive_data)
     send = Thread(target=send_data)
     recv.start()
     send.start()
-    # _thread.start_new_thread(receive_data, ())
-    # _thread.start_new_thread(send_data, ())
     print('running')
     recv.join()
+    send.join()
     s.close()
     print('voice closed')
 
@@ -62,10 +63,3 @@ def start():
 def end():
     global run_chat
     run_chat = False
-
-
-def time_end(t=15):
-    from time import sleep
-    sleep(t)
-    print('closing voice')
-    end()
