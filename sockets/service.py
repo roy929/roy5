@@ -3,8 +3,10 @@ import tkinter.messagebox as tm
 import tkinter
 import time
 from sockets import voice
+from socket import socket
 
-SERVICE_PORT = 50003
+SERVICE_PORT = 50005
+SERVICE_IP = '0.0.0.0'
 
 
 def ask(name):
@@ -15,46 +17,34 @@ def ask(name):
 
 
 def service():
+    server = socket()
+    server.bind(('', SERVICE_PORT))
+    server.listen(5)
     print('Service Started!')
-    server = socket.socket()
-    server.bind(('0.0.0.0', SERVICE_PORT))
-    server.listen(1)
-    (client_socket, client_address) = server.accept()
+    client_socket, client_address = server.accept()
     print("client accept from {0} at port {1}".format(client_address, SERVICE_PORT))
 
-    in_chat = False
-    while not in_chat:
-        # waiting for request from a user to chat
-        print('hi')
-        msg = client_socket.recv(1024)
-        msg = msg.decode()
-        if msg.startswith('CONNECTING'):  # now we got a call
-            msg = msg.split(':')
-            if len(msg) == 2:
-                name = msg[1]
-                print('{0} called'.format(name))
-                ans = ask(name)  # ans = True/False
-            else:
-                ans = ask('')
-            client_socket.send(str(ans).encode())
-            time.sleep(1)
-            client_socket.close()
-            server.close()
-            print(client_address[0])
-            # TEST: chat server
-            # main_server()
-
-            # now we enter chat from here
-            time.sleep(2)
-            # go to main server
-            if str(ans) == 'True':
-                print('going to chat')
-                in_chat = True
-                a = voice.start()
-                print(a)
-                print('OVER')
-                # while True:
-                #     pass
+    # waiting for request from a user to chat
+    msg = client_socket.recv(1024)
+    msg = msg.decode()
+    if msg.startswith('Connecting'):  # now we got a call
+        msg = msg.split(':')
+        name = msg[1]
+        print('{0} calling'.format(name))
+        ans = ask(name)  # ans = True/False
+    else:
+        ans = ask('different')
+    client_socket.send(str(ans).encode())
+    time.sleep(0.12)
+    client_socket.close()
+    server.close()
+    # go to main server
+    if ans:
+        print('starting chat, going to server')
+        voice.start()
+        # find a way to know when the other user leaves, and leave as well
+    else:
+        print(ans)
 
 
 # this is normal chat

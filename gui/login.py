@@ -58,7 +58,7 @@ class Login:
         from mainpage import MainPage
         self.frame.destroy()
         mp = MainPage(self.MY_USER_NAME, self.win)
-        mp.to_run()
+        mp.starting_page()
 
 
 def pop_up_message(text):

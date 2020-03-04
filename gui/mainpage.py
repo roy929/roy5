@@ -10,7 +10,6 @@ class MainPage:
     stop = False
 
     def __init__(self, my_user_name, win=None):
-        # Thread.__init__(self)
         self.MY_USER_NAME = my_user_name
         self.win = win
         if self.win is None:
@@ -39,18 +38,21 @@ class MainPage:
         # find a way to break if waiting too long or if user wants to ?!!!!!
 
         if return_val and not self.stop:
+            self.end_call.forget()
             self.text2.configure(text='In chat with {0}'.format(self.USER_TO_CALL))
             self.end_chat.pack()
             # start chat
             voice.start()
         elif return_val == 'different':
+            self.end_call.forget()
             pass
         elif self.stop:
             pop_up_message("call stopped")
         else:
             pop_up_message('sorry, an error occurred')
-        self.text2.forget()
         self.end_call.forget()
+        self.text2.forget()
+        self.end_chat.forget()
         self.starting_page()
 
     def stop_call(self):

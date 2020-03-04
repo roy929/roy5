@@ -53,7 +53,6 @@ def start():
     send = Thread(target=send_data)
     recv.start()
     send.start()
-    print('running')
     recv.join()
     send.join()
     s.close()
