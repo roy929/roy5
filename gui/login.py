@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter.ttk import *
-from sql import Sql
+from sockets.sql import Sql
 
 
 class Login:
@@ -40,6 +40,7 @@ class Login:
         name = self.entry_name.get()
         pas = self.entry_pas.get()
 
+        # should happen in server with request
         # check if exists in database
         database = Sql()
         check = database.check_account(name, pas)

@@ -2,8 +2,9 @@ import sqlite3
 
 
 class Sql:
+    file_location = '../database.db'
 
-    def __init__(self, file='../database.db'):
+    def __init__(self, file=file_location):
         self.conn = sqlite3.connect(file)
         self.c = self.conn.cursor()
         self.create_table()

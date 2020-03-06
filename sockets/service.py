@@ -2,7 +2,7 @@ import socket
 import tkinter.messagebox as tm
 import tkinter
 import time
-from sockets import voice
+from data import voice
 from socket import socket
 
 SERVICE_PORT = 50005
@@ -49,7 +49,7 @@ def service():
 
 # this is normal chat
 def type_chat():
-    from sockets.client import Client
+    from data.type_chat_client import Client
     c = Client()
     c.start()
 

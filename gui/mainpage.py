@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter.ttk import *
-from sockets import user, voice
+from sockets import user
+from data import voice
 from threading import Thread
 
 
@@ -14,7 +15,7 @@ class MainPage:
         self.win = win
         if self.win is None:
             self.win = Tk()
-        self.win.title('User')
+        self.win.title('Call Page')
         self.style = Style(self.win)
         self.frame = Frame(self.win)
         self.text1 = Label(self.frame, text='Call to')
@@ -59,6 +60,7 @@ class MainPage:
         self.stop = True
 
     def make_a_call(self, event=None):
+        # check if the name is in database
         user_name = self.user_to_call.get()
         self.user_to_call.delete(0, len(user_name))
         if len(user_name) > 2 and user_name != self.MY_USER_NAME:
@@ -84,6 +86,13 @@ class MainPage:
         self.user_to_call.focus_set()
         center_window(self.win)
         self.win.mainloop()
+
+
+# this is normal chat
+def type_chat():
+    from data.type_chat_client import Client
+    c = Client()
+    c.start()
 
 
 def pop_up_message(text):

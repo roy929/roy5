@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter.ttk import *
-from sql import Sql
+from sockets.sql import Sql
 import socket
 
 
@@ -62,7 +62,7 @@ class Register:
     def firstpage(self):
         from firstpage import FirstPage
         self.frame.destroy()
-        FirstPage(self.win).start()
+        FirstPage(self.win).run()
 
 
 def pop_up_message(text):

@@ -1,5 +1,7 @@
 from tkinter import *
 from tkinter.ttk import *
+from gui.login import Login
+from gui.register import Register
 
 
 class FirstPage:
@@ -14,10 +16,9 @@ class FirstPage:
         self.frame = Frame(self.win)
         self.button_login = Button(self.frame, text='login', command=self.login)
         self.button_register = Button(self.frame, text='register', command=self.register)
-        # self.win.geometry('500x500')
         center_window(self.win)
 
-    def start(self):
+    def run(self):
         # grid & pack
         self.button_login.grid(row=0)
         self.button_register.grid(row=1)
@@ -26,12 +27,10 @@ class FirstPage:
         self.win.mainloop()
 
     def login(self):
-        from login import Login
         self.frame.destroy()
         Login(self.win).start()
 
     def register(self):
-        from register import Register
         self.frame.destroy()
         Register(self.win).start()
 
@@ -49,4 +48,4 @@ def center_window(root, width=300, height=200):
 
 if __name__ == '__main__':
     f = FirstPage()
-    f.start()
+    f.run()
