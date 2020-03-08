@@ -3,7 +3,7 @@ import tkinter.messagebox as tm
 import tkinter
 import time
 from data import voice
-from socket import socket
+
 
 SERVICE_PORT = 50005
 SERVICE_IP = '0.0.0.0'
@@ -17,7 +17,7 @@ def ask(name):
 
 
 def service():
-    server = socket()
+    server = socket.socket()
     server.bind(('', SERVICE_PORT))
     server.listen(5)
     print('Service Started!')
@@ -56,7 +56,7 @@ def type_chat():
 
 def main_server():
     # TEST: chat server
-    import server
+    from data import server
     s = server.ChatServer()
     from threading import Thread
     t = Thread(target=s.run)
