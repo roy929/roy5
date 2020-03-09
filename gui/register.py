@@ -1,7 +1,8 @@
 from tkinter import *
 from tkinter.ttk import *
-from sockets.sql import Sql
-import socket
+import requests
+# from sockets.sql import Sql
+# import socket
 
 
 class Register:
@@ -47,14 +48,19 @@ class Register:
             pop_up_message('name and password must be at least 3 characters')
         # add to database unless name is already used
         else:
-            database = Sql()
-            host_name = socket.gethostname()
-            ip = socket.gethostbyname(host_name)
+            new_user = {'name': name, 'password': pas}
+            r = requests.post('http://127.0.0.1:5000/users', data=new_user)
+            # print(r)  # r.status_code
+
+            # -----old------
+            # database = Sql()
+            # host_name = socket.gethostname()
+            # ip = socket.gethostbyname(host_name)
             # print(host_name, ip)
-            inserted = database.insert_account(name, pas, ip)
-            if inserted:
+            # inserted = database.insert_account(name, pas, ip)
+            # database.close_conn()
+            if r.json() == 'True':
                 pop_up_message('added to database')
-                database.close_conn()
                 self.firstpage()
             else:
                 pop_up_message('name already exist')

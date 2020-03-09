@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter.ttk import *
-from sockets.sql import Sql
+import requests
+# from sockets.sql import Sql
 
 
 class Login:
@@ -40,22 +41,26 @@ class Login:
         name = self.entry_name.get()
         pas = self.entry_pas.get()
 
-        # should happen in server with request
+        data = {'name': name, 'password': pas}
+        r = requests.get('http://127.0.0.1:5000/users', data=data)
+        # print(r.json())  # r.status_code
+
+        # -----old------
         # check if exists in database
-        database = Sql()
-        check = database.check_account(name, pas)
-        database.close_conn()
-        if check:
+        # database = Sql()
+        # check = database.check_account(name, pas)
+        # database.close_conn()
+        if r.json() == 'True':
             self.MY_USER_NAME = name
             pop_up_message("you're in, {}".format(self.MY_USER_NAME))
-            # open chat page
-            self.open_conn()
+            # open chat mainpage
+            self.open_mainpage()
         else:
             self.entry_name.delete(0, len(name))
             self.entry_pas.delete(0, len(pas))
-            pop_up_message("name or password in incorrect")
+            pop_up_message("name or password is incorrect")
 
-    def open_conn(self):
+    def open_mainpage(self):
         from mainpage import MainPage
         self.frame.destroy()
         mp = MainPage(self.MY_USER_NAME, self.win)
