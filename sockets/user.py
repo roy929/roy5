@@ -28,9 +28,13 @@ def call_service(name_of_calling_user, ip=""):
         time.sleep(1)
         answer = client.recv(1024)
         client.close()
+
+        if answer.decode() == 'True':
+            return True
+        if answer.decode() == 'False':
+            return False
         if answer.decode() == 'different':
             return 'different'
-        return bool(answer.decode())
     except socket.error:
         print('---socket error---')
 
