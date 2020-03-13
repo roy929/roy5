@@ -1,17 +1,18 @@
 from tkinter import *
 from tkinter.ttk import *
-import requests
-# from sockets.sql import Sql
+from connection import handle_server
+
+# from connection.sql import Sql
 # import socket
 
 
 class Register:
 
     def __init__(self, win=None):
-        if win is None:
-            self.win = Tk()
-        else:
+        if win:
             self.win = win
+        else:
+            self.win = Tk()
         self.win.title('Register')
         self.style = Style(self.win)
         self.frame = Frame(self.win)
@@ -48,9 +49,7 @@ class Register:
             pop_up_message('name and password must be at least 3 characters')
         # add to database unless name is already used
         else:
-            new_user = {'name': name, 'password': pas}
-            r = requests.post('http://127.0.0.1:5000/users', data=new_user)
-            # print(r)  # r.status_code
+            is_registered = handle_server.register(name, pas)
 
             # -----old------
             # database = Sql()
@@ -59,15 +58,16 @@ class Register:
             # print(host_name, ip)
             # inserted = database.insert_account(name, pas, ip)
             # database.close_conn()
-            if r.json() == 'True':
+            # -----old------
+            if is_registered:
                 pop_up_message('added to database')
                 self.firstpage()
             else:
                 pop_up_message('name already exist')
 
     def firstpage(self):
-        from firstpage import FirstPage
         self.frame.destroy()
+        from gui.firstpage import FirstPage
         FirstPage(self.win).run()
 
 

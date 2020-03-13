@@ -1,17 +1,18 @@
 from tkinter import *
 from tkinter.ttk import *
-import requests
-# from sockets.sql import Sql
+from connection import handle_server
+from gui.mainpage import MainPage
+# from connection.sql import Sql
 
 
 class Login:
     MY_USER_NAME = ""
 
     def __init__(self, win=None):
-        if win is None:
-            self.win = Tk()
-        else:
+        if win:
             self.win = win
+        else:
+            self.win = Tk()
         self.win.title('Login')
         self.style = Style(self.win)
         self.frame = Frame(self.win)
@@ -41,16 +42,14 @@ class Login:
         name = self.entry_name.get()
         pas = self.entry_pas.get()
 
-        data = {'name': name, 'password': pas}
-        r = requests.get('http://127.0.0.1:5000/users', data=data)
-        # print(r.json())  # r.status_code
-
+        is_connected = handle_server.login(name, pas)
         # -----old------
         # check if exists in database
         # database = Sql()
         # check = database.check_account(name, pas)
         # database.close_conn()
-        if r.json() == 'True':
+        # -----old------
+        if is_connected:
             self.MY_USER_NAME = name
             pop_up_message("you're in, {}".format(self.MY_USER_NAME))
             # open chat mainpage
@@ -61,7 +60,6 @@ class Login:
             pop_up_message("name or password is incorrect")
 
     def open_mainpage(self):
-        from mainpage import MainPage
         self.frame.destroy()
         mp = MainPage(self.MY_USER_NAME, self.win)
         mp.starting_page()

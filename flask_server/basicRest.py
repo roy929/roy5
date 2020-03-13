@@ -69,30 +69,33 @@ def users():
 
         # check if name already exist
         data = Users.query.filter_by(name=name).first()
-        if data is not None:
+        if data:
             return jsonify("False")
 
-        newUser = Users(name=name, password=password, ip=ip)
-        db.session.add(newUser)
+        new_user = Users(name=name, password=password, ip=ip)
+        db.session.add(new_user)
         db.session.commit()
-        print("p1:", newUser.id, name, password, ip)
+        print("new user:", new_user.id, name, password, ip)
         return jsonify("True")
 
-    if request.method == 'GET':  # when login arrive to here
-        user = request.form.get("name")
+    if request.method == 'GET':
+        # login arrive to here
+        user_name = request.form.get("name")
         password = request.form.get("password")
-        # print("1111", user, password)
         result = 'False'
-        data = Users.query.filter_by(name=user, password=password).first()  # data is type <class '__main__.Users'>
-        if data is not None:
-            print(data.name, data.ip)
-            result = "True"
 
-        # user ask for IP of name
-        elif password is None:
-            data = Users.query.filter_by(name=user).first()
-            if data is not None:
-                result = data.ip
+        # login
+        if password:
+            user_info = Users.query.filter_by(name=user_name, password=password).first()
+            if user_info:
+                print(user_info.name, user_info.ip)
+                result = "True"
+
+        # get IP by name
+        else:
+            user_info = Users.query.filter_by(name=user_name).first()
+            if user_info:
+                result = user_info.ip
         print('sending:', result)
         return jsonify(result)
 
@@ -101,26 +104,34 @@ def users():
 def call():
     if request.method == 'GET':
         dst = request.form.get("dst")
-        # print("1111", user, password)
-        data = Call.query.filter_by(dst=dst).first()
-        print(data)
-        if data is None:
-            result = "False"
-        else:
-            result = "you got a call"
+        src = request.form.get("src")
+        result = "False"
+
+        if src and dst:
+            data = Call.query.filter_by(dst=dst, src=src).first()
+            # print(data.src, data.operation, data.dst)
+            result = data.operation
+
+        elif dst:
+            row = Call.query.filter_by(dst=dst).first()
+            if row:
+                result = f"you got a call from:{row.src}"
             # print(data.src, data.operation, data.dst )
-        print('sending:', result)
+        # print('sending:', result)
         return jsonify(result)
     if request.method == 'POST':
         src = request.form.get("src")
         operation = request.form.get("operation")
         dst = request.form.get("dst")
-
-        newCall = Call(src=src, operation=operation, dst=dst)
-        db.session.add(newCall)
-        db.session.commit()
-        print("p1:", newCall.id, src, operation, dst)
-        result = "calling"
+        result = 'error'
+        try:
+            newCall = Call(src=src, operation=operation, dst=dst)
+            db.session.add(newCall)
+            db.session.commit()
+            print("new_call:", newCall.id, src, operation, dst)
+            result = "calling"
+        except:
+            pass
         print('sending:', result)
         return jsonify(result)
 
@@ -129,6 +140,7 @@ def call():
         operation = request.form.get("operation")
         dst = request.form.get("dst")
         row = Call.query.filter_by(src=src, dst=dst).first()
+        print(row.operation)
         row.operation = operation
         db.session.commit()
         result = 'go to chat'
@@ -139,22 +151,24 @@ def call():
         src = request.form.get("src")
         operation = request.form.get("operation")
         dst = request.form.get("dst")
-        result = "there is no ope"
+        result = "there is no operation"
+        print(src, operation, dst)
 
-        if src is not None:
-            row = Call.query.filter_by(src=src).delete()
-            print(row)
-            if row == 0:
-                result = "False1"
-            else:
-                result = "{0} stopped".format(operation)
+        if src:
+            row = Call.query.filter_by(src=src).first()
+            if row:
+                db.session.delete(row)
                 db.session.commit()
-        if dst is not None:
-            row = Call.query.filter_by(operation=operation, dst=dst).delete()
-            print(row)
-            if row == 0:
-                result = "False2"
+                result = 'deleted by src'
+                print(result)
+
+        if dst:
+            row = Call.query.filter_by(dst=dst).first()
+            if row:
+                db.session.delete(row)
                 db.session.commit()
+                result = 'deleted by dst'
+                print(result)
 
         print('sending:', result)
         return jsonify(result)

@@ -1,18 +1,21 @@
 from tkinter import *
 from tkinter.ttk import *
-from sockets import user, handle_server
+from connection import handle_server
 from data import voice
 from threading import Thread
+import time
 
 
 class MainPage:
     MY_USER_NAME = ""
     stop = False
+    error = False
 
     def __init__(self, my_user_name, win=None):
         self.MY_USER_NAME = my_user_name
-        self.win = win
-        if self.win is None:
+        if win:
+            self.win = win
+        else:
             self.win = Tk()
         self.win.title('Call Page')
         self.style = Style(self.win)
@@ -21,8 +24,8 @@ class MainPage:
         self.text2 = Label(self.frame)
         self.user_to_call = Entry(self.frame)
         self.call = Button(self.frame, text='Call', command=self.make_a_call)
-        self.end_call = Button(self.frame, text='End Call', command=self.stop_call)
-        self.end_chat = Button(self.frame, text='End Chat', command=voice.end)
+        self.end_call = Button(self.frame, text='End Call', command=self.stop_calling)
+        self.end_chat = Button(self.frame, text='End Chat', command=self.close_chat)
 
     def run(self, user_name, user_ip):
         pop_up_message("calling '{0}'".format(user_name))
@@ -32,37 +35,59 @@ class MainPage:
         self.text2.configure(text='Calling {0}...'.format(user_name))
         self.text2.pack()
         self.end_call.pack()
+        is_successful = handle_server.call(self.MY_USER_NAME, user_name)
+
+        if not is_successful:
+            self.error = True
+
+        # check if 'calling' changed to 'call'
+
+        timeout = time.time() + 60 * 0.5  # 0.5 minutes from now
+        # print(timeout)
+
+        while not self.error and not self.stop:
+            if time.time() > timeout:
+                pop_up_message('call stopped, waiting too long for answer')
+                self.error = True
+
+            time.sleep(0.1)
+            if handle_server.is_accepted(self.MY_USER_NAME, user_name):
+                print('accepted')
+                break
+            # need to delete calling or call if ended
+
         # get ok from service
-        to_call = user.call_service(self.MY_USER_NAME, user_ip)
+        # to_call = user.call_service(self.MY_USER_NAME, user_ip)
         # find a way to break if waiting too long or if user wants to ?!!!!!
 
-        if to_call and not self.stop:
+        if not self.error and not self.stop:
             self.end_call.forget()
             self.text2.configure(text='In chat with {0}'.format(user_name))
             self.end_chat.pack()
             # start chat
             voice.start()
-        elif to_call == 'different':
-            self.end_call.forget()
-            pass
+
         elif self.stop:
             pop_up_message("call stopped")
-        else:
+        elif self.error:
             pop_up_message('sorry, an error occurred')
-        self.end_call.forget()
-        self.text2.forget()
-        self.end_chat.forget()
+        handle_server.stop_call(self.MY_USER_NAME)
         self.starting_page()
 
-    def stop_call(self):
+    def close_chat(self):
+        handle_server.stop_chat(self.MY_USER_NAME)
+        voice.end()
+
+    def stop_calling(self):
         self.stop = True
+        voice.end()
 
     def make_a_call(self, event=None):
         user_name = self.user_to_call.get()
         self.user_to_call.delete(0, len(user_name))
         if len(user_name) > 2 and user_name != self.MY_USER_NAME:
             user_ip = handle_server.get_user_ip(user_name)
-            if user_ip is not False:
+            if user_ip:
                 # start call
                 t = Thread(target=self.run, args=(user_name, user_ip))
                 t.start()
@@ -74,6 +99,14 @@ class MainPage:
             pop_up_message("you can't call yourself")
 
     def starting_page(self):
+        # resets values
+        self.stop = False
+        self.error = False
+
+        self.end_call.forget()
+        self.text2.forget()
+        self.end_chat.forget()
+
         # packing and set up
         self.text1.pack(side=TOP)
         self.user_to_call.pack()
@@ -115,6 +148,6 @@ def center_window(root, width=300, height=200):
 
 
 if __name__ == '__main__':
-    my_name = 'test'
+    my_name = 'roy'
     conn = MainPage(my_name)
     conn.starting_page()
