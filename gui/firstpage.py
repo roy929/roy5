@@ -7,10 +7,10 @@ from gui.register import Register
 class FirstPage:
 
     def __init__(self, win=None):
-        if win is None:
-            self.win = Tk()
-        else:
+        if win:
             self.win = win
+        else:
+            self.win = Tk()
         self.win.title('VoiceChat')
         self.style = Style(self.win)
         self.frame = Frame(self.win)
