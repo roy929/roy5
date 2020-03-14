@@ -1,17 +1,27 @@
 import socket
 import time
-from sockets.sql import Sql
+import requests
+
+# from connection.sql import Sql
 
 SERVER_IP = 'localhost'
 SERVER_PORT = 50002
 SERVICE_PORT = 50005
 
 
+# def get_user_ip(name):
+#     s = Sql()
+#     ip = s.get_ip(name)
+#     s.close_conn()
+#     return ip
+
+# returns ip or False if user doesnt exist
 def get_user_ip(name):
-    s = Sql()
-    ip = s.get_ip(name)
-    s.close_conn()
-    return ip
+    data = {'name': name}
+    r = requests.get('http://127.0.0.1:5000/users', data=data)
+    if r.json() == 'False':
+        return False
+    return r.json()  # r.status_code
 
 
 def call_service(name_of_calling_user, ip=""):
@@ -40,15 +50,19 @@ def call_service(name_of_calling_user, ip=""):
 
 
 # should be in server
-def check_if_name_exists(user_name_1):
-    database = Sql()
-    exist = database.does_exist(user_name_1)  # return True or False
-    database.close_conn()
-    return exist
+# def check_if_name_exists(user_name_1):
+#     database = Sql()
+#     exist = database.does_exist(user_name_1)  # return True or False
+#     database.close_conn()
+#     return exist
 
 
 if __name__ == '__main__':
     user_name = 'roy'
     my_name = 'random_name'
     user_ip = get_user_ip(user_name)
-    ans = call_service(my_name, user_ip)
+    # ans = call_service(my_name, user_ip)
+    print('cant call no ip')
+    if user_ip is not False:
+        print('calling:', user_name, '|| ip:', user_ip)
+        ans = call_service(my_name, user_ip)
