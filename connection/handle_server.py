@@ -1,10 +1,10 @@
 import requests
 import time
 
-ip = '127.0.0.1'
-port = 5000
-users_url = f'http://{ip}:{port}/users'
-call_url = f'http://{ip}:{port}/call'
+server_ip = '127.0.0.1'
+server_port = 5000
+users_url = f'http://{server_ip}:{server_port}/users'
+call_url = f'http://{server_ip}:{server_port}/call'
 
 
 # returns ip or False if user doesnt exist
@@ -32,6 +32,7 @@ def register(name, pas):
     return False
 
 
+# post calling
 def call(src_name, dst_name):
     new_call = {'src': src_name, 'operation': 'calling', 'dst': dst_name}
     r = requests.post(call_url, data=new_call)
@@ -41,6 +42,7 @@ def call(src_name, dst_name):
     return True
 
 
+# change to calling to call
 def accept_call(src_name, dst_name):
     new_call = {'src': src_name, 'operation': 'call', 'dst': dst_name}
     r = requests.put(call_url, data=new_call)
@@ -53,19 +55,17 @@ def look_for_call(dst_name):
     check_call = {'operation': 'calling', 'dst': dst_name}
     r = requests.get(call_url, data=check_call)
     # print(r.json())  # r.status_code
-    return r.json()
+    return r.json()  # return msg with name of src || False
 
 
 def who_is_calling(dst_name):
-    check_call = {'operation': 'calling', 'dst': dst_name}
-    r = requests.get(call_url, data=check_call)
-    print(r.json())  # r.status_code
-
-    name = r.json().split(':')[1]
+    ans = look_for_call(dst_name)
+    name = ans.split(':')[1]
     return name
 
 
-def is_accepted(src, dst):
+# check if call accepted or call still alive
+def is_in_chat(src, dst):
     data = {'src': src, 'dst': dst}
     r = requests.get(call_url, data=data)
     # json = operation

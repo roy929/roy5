@@ -109,8 +109,9 @@ def call():
 
         if src and dst:
             data = Call.query.filter_by(dst=dst, src=src).first()
-            # print(data.src, data.operation, data.dst)
-            result = data.operation
+            if data:
+                # print(data.src, data.operation, data.dst)
+                result = data.operation
 
         elif dst:
             row = Call.query.filter_by(dst=dst).first()
@@ -151,8 +152,8 @@ def call():
         src = request.form.get("src")
         operation = request.form.get("operation")
         dst = request.form.get("dst")
-        result = "there is no operation"
-        print(src, operation, dst)
+        result = "you are not a part of any connection"
+        print('delete method:', src, operation, dst)
 
         if src:
             row = Call.query.filter_by(src=src).first()

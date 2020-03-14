@@ -50,8 +50,8 @@ class MainPage:
                 pop_up_message('call stopped, waiting too long for answer')
                 self.error = True
 
-            time.sleep(0.1)
-            if handle_server.is_accepted(self.MY_USER_NAME, user_name):
+            time.sleep(0.5)
+            if handle_server.is_in_chat(self.MY_USER_NAME, user_name):
                 print('accepted')
                 break
             # need to delete calling or call if ended
@@ -67,11 +67,12 @@ class MainPage:
             # start chat
             voice.start()
 
-        elif self.stop:
+        if self.stop:
             pop_up_message("call stopped")
         elif self.error:
             pop_up_message('sorry, an error occurred')
         handle_server.stop_call(self.MY_USER_NAME)
+        handle_server.stop_chat(self.MY_USER_NAME)
         self.starting_page()
 
     def close_chat(self):
@@ -80,7 +81,6 @@ class MainPage:
 
     def stop_calling(self):
         self.stop = True
-        voice.end()
 
     def make_a_call(self, event=None):
         user_name = self.user_to_call.get()
