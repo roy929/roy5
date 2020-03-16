@@ -120,17 +120,18 @@ def call():
             # print(data.src, data.operation, data.dst )
         # print('sending:', result)
         return jsonify(result)
+
     if request.method == 'POST':
         src = request.form.get("src")
         operation = request.form.get("operation")
         dst = request.form.get("dst")
         result = 'error'
         try:
-            newCall = Call(src=src, operation=operation, dst=dst)
-            db.session.add(newCall)
+            new_call = Call(src=src, operation=operation, dst=dst)
+            db.session.add(new_call)
             db.session.commit()
-            print("new_call:", newCall.id, src, operation, dst)
-            result = "calling"
+            print("new_call:", new_call.id, src, operation, dst)
+            result = "True"
         except:
             pass
         print('sending:', result)

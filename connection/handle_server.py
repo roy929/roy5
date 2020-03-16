@@ -37,9 +37,9 @@ def call(src_name, dst_name):
     new_call = {'src': src_name, 'operation': 'calling', 'dst': dst_name}
     r = requests.post(call_url, data=new_call)
     # print(r.json())  # r.status_code
-    if r.json() == 'error':
-        return False
-    return True
+    if r.json() == 'True':
+        return True
+    return False
 
 
 # change to calling to call

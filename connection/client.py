@@ -17,6 +17,7 @@ if __name__ == '__main__':
     my_name = 'kkk'
     print('waiting for a call')
     while True:
+        time.sleep(0.5)
         if handle_server.look_for_call(my_name) != 'False':
             break
     user = handle_server.who_is_calling(my_name)

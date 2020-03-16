@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter.ttk import *
 from connection import handle_server
 from gui.mainpage import MainPage
-# from connection.sql import Sql
+# from sockets.sql import Sql
 
 
 class Login:
