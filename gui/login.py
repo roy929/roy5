@@ -3,7 +3,6 @@ from tkinter.ttk import *
 from gui.general_gui_methods import pop_up_message, center_window
 from gui.mainpage import MainPage
 from connection import handle_server
-# from sockets.sql import Sql
 
 
 class Login:
@@ -21,7 +20,7 @@ class Login:
         self.entry_pas = Entry(self.frame, show='*')
         center_window(self.win)
 
-    def start(self):
+    def main(self):
         # self.win.geometry('500x500')
         name = Label(self.frame, text='Name')
         pas = Label(self.frame, text='Password')
@@ -44,12 +43,6 @@ class Login:
         pas = self.entry_pas.get()
 
         is_connected = handle_server.login(name, pas)
-        # -----old------
-        # check if exists in database
-        # database = Sql()
-        # check = database.check_account(name, pas)
-        # database.close_conn()
-        # -----old------
         if is_connected:
             self.MY_USER_NAME = name
             pop_up_message("you're in, {}".format(self.MY_USER_NAME))
@@ -63,9 +56,9 @@ class Login:
     def open_mainpage(self):
         self.frame.destroy()
         mp = MainPage(self.MY_USER_NAME, self.win)
-        mp.starting_page()
+        mp.main()
 
 
 if __name__ == '__main__':
     login = Login()
-    login.start()
+    login.main()

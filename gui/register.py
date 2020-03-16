@@ -2,8 +2,6 @@ from tkinter import *
 from tkinter.ttk import *
 from connection import handle_server
 from gui.general_gui_methods import pop_up_message, center_window
-# from sockets.sql import Sql
-# import socket
 
 
 class Register:
@@ -20,7 +18,7 @@ class Register:
         self.entry_pas = Entry(self.frame)
         center_window(self.win)
 
-    def start(self):
+    def main(self):
         # self.win.geometry('500x500')
         name = Label(self.frame, text='Name')
         pas = Label(self.frame, text='Password')
@@ -50,15 +48,6 @@ class Register:
         # add to database unless name is already used
         else:
             is_registered = handle_server.register(name, pas)
-
-            # -----old------
-            # database = Sql()
-            # host_name = socket.gethostname()
-            # ip = socket.gethostbyname(host_name)
-            # print(host_name, ip)
-            # inserted = database.insert_account(name, pas, ip)
-            # database.close_conn()
-            # -----old------
             if is_registered:
                 pop_up_message('added to database')
                 self.firstpage()
@@ -68,9 +57,9 @@ class Register:
     def firstpage(self):
         self.frame.destroy()
         from gui.firstpage import FirstPage
-        FirstPage(self.win).run()
+        FirstPage(self.win).main()
 
 
 if __name__ == '__main__':
     register = Register()
-    register.start()
+    register.main()

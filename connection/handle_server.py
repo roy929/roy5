@@ -76,9 +76,9 @@ def is_in_chat(src, dst):
 
 
 # when calling
-def stop_call(src_name):
-    stop_calling = {'src': src_name, 'operation': 'calling'}
-    r = requests.delete(call_url, data=stop_calling)
+def stop_calling(src_name):
+    msg = {'src': src_name, 'operation': 'calling'}
+    r = requests.delete(call_url, data=msg)
     print(r.json())  # r.status_code
 
 

@@ -125,7 +125,7 @@ def call():
         src = request.form.get("src")
         operation = request.form.get("operation")
         dst = request.form.get("dst")
-        result = 'error'
+        result = 'call already exists'
         try:
             new_call = Call(src=src, operation=operation, dst=dst)
             db.session.add(new_call)
@@ -161,7 +161,10 @@ def call():
             if row:
                 db.session.delete(row)
                 db.session.commit()
-                result = 'deleted by src'
+                if row.operation == 'calling':
+                    result = 'calling stopped'
+                else:
+                    result = 'call stopped'
                 print(result)
 
         if dst:
@@ -169,7 +172,7 @@ def call():
             if row:
                 db.session.delete(row)
                 db.session.commit()
-                result = 'deleted by dst'
+                result = 'call stopped'
                 print(result)
 
         print('sending:', result)

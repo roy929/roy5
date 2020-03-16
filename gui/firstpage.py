@@ -18,7 +18,7 @@ class FirstPage:
         self.button_register = Button(self.frame, text='register', command=self.register)
         center_window(self.win)
 
-    def run(self):
+    def main(self):
         # grid & pack
         self.button_login.grid(row=0)
         self.button_register.grid(row=1)
@@ -28,11 +28,11 @@ class FirstPage:
 
     def login(self):
         self.frame.destroy()
-        Login(self.win).start()
+        Login(self.win).main()
 
     def register(self):
         self.frame.destroy()
-        Register(self.win).start()
+        Register(self.win).main()
 
 
 def center_window(root, width=300, height=200):
@@ -48,4 +48,4 @@ def center_window(root, width=300, height=200):
 
 if __name__ == '__main__':
     f = FirstPage()
-    f.run()
+    f.main()
