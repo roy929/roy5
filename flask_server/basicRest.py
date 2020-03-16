@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 
 project_dir = os.path.dirname(os.path.abspath(__file__))
-database_file = "sqlite:///{}".format(os.path.join(project_dir, "users.db"))
+database_file = "sqlite:///{}".format(os.path.join(project_dir, "database.db"))
 
 # creating a Flask app 
 app = Flask(__name__)
@@ -182,4 +182,5 @@ def call():
 
 
 if __name__ == '__main__':
+    # db.create_all(app=app)
     app.run(debug=True, host='0.0.0.0', port=5000)
