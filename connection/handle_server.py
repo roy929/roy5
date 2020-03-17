@@ -46,8 +46,8 @@ def call(src_name, dst_name):
 def accept_call(src_name, dst_name):
     new_call = {'src': src_name, 'operation': 'call', 'dst': dst_name}
     r = requests.put(call_url, data=new_call)
-    print(r.status_code)
-    print(r.json())
+    if r.json() != 'go to chat':
+        print(r.json())
     # print(r.json())  # r.status_code
 
 
