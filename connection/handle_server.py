@@ -3,22 +3,20 @@ import time
 
 server_ip = '127.0.0.1'
 server_port = 5000
-users_url = f'http://{server_ip}:{server_port}/users'
+flask_url = f'http://{server_ip}:{server_port}'
 call_url = f'http://{server_ip}:{server_port}/call'
 
 
-# returns ip or False if user doesnt exist
+# returns ip or 0 if user doesnt exist
 def get_user_ip(name):
     data = {'name': name}
-    r = requests.get(users_url, data=data)
-    if r.json() == 'False':
-        return False
+    r = requests.get(flask_url+'/get_ip', data=data)
     return r.json()  # r.status_code
 
 
 def login(name, pas):
     data = {'name': name, 'password': pas}
-    r = requests.get(users_url, data=data)
+    r = requests.get(flask_url+'/login', data=data)
     if r.json() == 'True':
         return True
     return False
@@ -26,7 +24,7 @@ def login(name, pas):
 
 def register(name, pas):
     data = {'name': name, 'password': pas}
-    r = requests.post(users_url, data=data)
+    r = requests.post(flask_url+'/register', data=data)
     if r.json() == 'True':
         return True
     return False

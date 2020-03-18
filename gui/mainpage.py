@@ -50,8 +50,7 @@ class MainPage:
         self.user_to_call.delete(0, len(user_name))
         if len(user_name) > 2 and user_name != self.MY_USER_NAME:
             user_ip = handle_server.get_user_ip(user_name)
-            # replace ip with real check if the user exists
-            if user_ip:
+            if user_ip:  # checks if the user exists
                 # start call
                 t = Thread(target=self.run, args=(user_name,))
                 t.start()
@@ -114,13 +113,6 @@ class MainPage:
     def stop_calling(self):
         handle_server.stop_calling(self.MY_USER_NAME)
         self.cancel = True
-
-
-# this is normal chat
-# def type_chat():
-#     from data.type_chat_client import Client
-#     c = Client()
-#     c.start()
 
 
 if __name__ == '__main__':

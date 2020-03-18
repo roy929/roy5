@@ -58,45 +58,50 @@ call_schema = CallSchema()
 calls_schema = CallSchema(many=True)
 
 
-@app.route('/users', methods=['POST', 'GET'])
-def users():
-    if request.method == 'POST':
-        data = request.form
-        print(data)
-        name = request.form.get("name")
-        password = request.form.get("password")
-        ip = request.remote_addr
-
-        # check if name already exist
-        data = Users.query.filter_by(name=name).first()
-        if data:
-            return jsonify("False")
-
-        new_user = Users(name=name, password=password, ip=ip)
-        db.session.add(new_user)
-        db.session.commit()
-        print("new user:", new_user.id, name, password, ip)
-        return jsonify("True")
-
+@app.route('/get_ip', methods=['GET'])
+def get_ip():
     if request.method == 'GET':
-        # login arrive to here
+        user_name = request.form.get("name")
+        result = 0
+        user_info = Users.query.filter_by(name=user_name).first()
+        if user_info:
+            result = user_info.ip
+        print('sending:', result)
+        return jsonify(result)
+
+
+@app.route('/login', methods=['GET'])
+def login():
+    if request.method == 'GET':
         user_name = request.form.get("name")
         password = request.form.get("password")
         result = 'False'
+        user_info = Users.query.filter_by(name=user_name, password=password).first()
+        if user_info:
+            print(user_info.name, user_info.ip)
+            result = "True"
+        print(f'sending {result}')
+        return jsonify(result)
 
-        # login
-        if password:
-            user_info = Users.query.filter_by(name=user_name, password=password).first()
-            if user_info:
-                print(user_info.name, user_info.ip)
-                result = "True"
 
-        # get IP by name
-        else:
-            user_info = Users.query.filter_by(name=user_name).first()
-            if user_info:
-                result = user_info.ip
-        print('sending:', result)
+@app.route('/register', methods=['POST'])
+def register():
+    if request.method == 'POST':
+        # data = request.form
+        # print(data)
+        user_name = request.form.get("name")
+        password = request.form.get("password")
+        ip = request.remote_addr
+        result = 'False'
+        user_info = Users.query.filter_by(name=user_name).first()
+        # check if name already exist
+        if not user_info:
+            new_user = Users(name=user_name, password=password, ip=ip)
+            db.session.add(new_user)
+            db.session.commit()
+            print("new user:", new_user.id, user_name, password, ip)
+            result = "True"
+        print(f'sending {result}')
         return jsonify(result)
 
 
