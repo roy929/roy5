@@ -18,11 +18,12 @@ if __name__ == '__main__':
     print('waiting for a call')
     while True:
         time.sleep(0.5)
-        if handle_server.look_for_call(my_name) != 'False':
+        if handle_server.look_for_call(my_name):
             break
     user = handle_server.who_is_calling(my_name)
     print(user)
-    handle_server.accept_call(user, my_name)
+    handle_server.accept(user, my_name)
+    time.sleep(5)
 
     t = Thread(target=voice.start, daemon=True)
     t.start()

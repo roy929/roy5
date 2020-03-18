@@ -68,7 +68,7 @@ class MainPage:
             if time.time() > max_time:
                 self.timed_out = True
                 return False
-            if handle_server.is_in_chat(self.MY_USER_NAME, user_name):
+            if handle_server.is_in_chat(self.MY_USER_NAME, user_name) == 'call':
                 return True
             time.sleep(0.5)
         return False
@@ -109,6 +109,8 @@ class MainPage:
     def close_chat(self):
         handle_server.stop_chat(self.MY_USER_NAME)
         voice.end()
+        self.in_chat_frame.forget()
+        self.start_frame.pack()
 
     def stop_calling(self):
         handle_server.stop_calling(self.MY_USER_NAME)

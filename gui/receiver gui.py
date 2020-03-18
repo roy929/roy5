@@ -3,7 +3,7 @@ from tkinter.ttk import *
 from threading import Thread
 import time
 from connection import handle_server
-from gui.general_gui_methods import pop_up_message, center_window
+from gui.general_gui_methods import center_window
 from data import voice
 
 
@@ -16,50 +16,78 @@ class Receiver:
             self.win = win
         else:
             self.win = Tk()
-        self.win.title('RECEIVE')
+        self.win.title('Receive')
         self.style = Style(self.win)
-        self.frame = Frame(self.win)
-        self.yes = Button(self.frame, text='yes', command=self.yes_m)
-        self.no = Button(self.frame, text='no', command=self.no_m)
+        self.main_frame = Frame(self.win)
+        self.called_frame = Frame(self.win)
+        self.in_chat_frame = Frame(self.win)
+        self.msg1 = Label(self.main_frame, text='waiting for a call')
+        self.msg2 = Label(self.called_frame)
+        self.msg3 = Label(self.in_chat_frame, text='in chat')
+        self.cancel_button = Button(self.in_chat_frame, text='cancel', command=self.cancel)
+        self.yes_button = Button(self.called_frame, text='yes', command=self.yes)
+        self.no_button = Button(self.called_frame, text='no', command=self.no)
         center_window(self.win)
 
-    def main(self):
-        msg = Label(self.frame, text='waiting for a call')
-        msg.pack()
-        print('waiting for a call')
-        t = Thread(target=self.wait_for_a_call)
-        t.start()
+    def set(self):
+        # grid & pack
+        # # frame 1:
+        self.msg1.pack()
+        # frame 2:
+        self.msg2.pack()
+        self.called_frame.bind_all('<Return>', self.yes)
+        self.yes_button.focus_set()
+        self.yes_button.pack()
+        self.no_button.pack()
+        # frame 3:
+        self.msg3.pack()
+        self.cancel_button.pack()
 
-        self.frame.pack()
+    def main(self):
+        self.set()  # need to run only one time
+        self.main_frame.pack()
+        wait_thread = Thread(target=self.wait_for_a_call)
+        wait_thread.start()
         self.win.mainloop()
 
     def wait_for_a_call(self):
         while True:
-            if handle_server.look_for_call(self.MY_USER_NAME) != 'False':
+            if handle_server.look_for_call(self.MY_USER_NAME):
                 break
             time.sleep(0.5)
+
         user = handle_server.who_is_calling(self.MY_USER_NAME)
-        self.got_call(user)
+        print(user, 'called')
 
-    def got_call(self, name):
-        # self.win.geometry('500x500')
-        msg = Label(self.frame, text=f'you got a call from {name}')
-        self.frame.bind_all('<Return>', self.yes_m)
-        self.yes.focus_set()
+        self.main_frame.forget()
+        self.called_frame.pack()
+        self.msg2.configure(text=f'you got a call from {user}')
 
-        # grid & pack
-        msg.pack()
-        self.yes.pack()
-        self.no.pack()
+    def cancel(self):
+        self.in_chat_frame.forget()
+        self.main_frame.pack()
+        handle_server.stop_chat(self.MY_USER_NAME)
+        print('end')
+        wait_thread = Thread(target=self.wait_for_a_call)
+        wait_thread.start()
 
-    def yes_m(self, name):
-        print('yes')
-        self.check_if_chat_over(name)
+    def yes(self):
+        self.called_frame.forget()
+        self.in_chat_frame.pack()
+        user = handle_server.who_is_calling(self.MY_USER_NAME)
+        if handle_server.accept(user, self.MY_USER_NAME):
+            end_thread = Thread(target=self.check_if_chat_over, args=[user])
+            end_thread.start()
+            voice_thread = Thread(target=voice.start)
+            voice_thread.start()
 
-    def no_m(self):
-        print('no')
+    def no(self):
+        self.called_frame.forget()
+        self.main_frame.pack()
+        handle_server.stop_chat(self.MY_USER_NAME)
+        wait_thread = Thread(target=self.wait_for_a_call)
+        wait_thread.start()
 
-        # close chat
     def check_if_chat_over(self, user):
         while True:
             time.sleep(0.5)

@@ -18,9 +18,9 @@ ma = Marshmallow(app)
 # https://flask-sqlalchemy.palletsprojects.com/en/2.x/models/
 # https://docs.sqlalchemy.org/en/13/core/constraints.html#unique-constraint
 # https://www.w3schools.com/sql/sql_unique.asp
-class Users(db.Model):
-    __tablename__ = 'Users'
-    id = db.Column(db.Integer, primary_key=True)
+class User(db.Model):
+    __table_name__ = 'User'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(32), unique=True, nullable=False)  # the name of the users is unique
     password = db.Column(db.String(32), nullable=False)
     ip = db.Column(db.String(32), nullable=False)
@@ -29,18 +29,18 @@ class Users(db.Model):
         return 'users id:{} name:{} ip:{}'.format(self.id, self.name, self.ip)  # omit password
 
 
-class UsersSchema(ma.Schema):
+class UserSchema(ma.Schema):
     class Meta:
         fields = ('name', 'password', 'ip')
 
 
-users_schema = UsersSchema()
-userss_schema = UsersSchema(many=True)
+user_schema = UserSchema()
+users_schema = UserSchema(many=True)
 
 
 class Call(db.Model):  # call other side
-    __tablename__ = 'Call'
-    id = db.Column(db.Integer, primary_key=True)
+    __table_name__ = 'Call'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     src = db.Column(db.String(32), unique=True, nullable=False)  # the name of the src caller is unique
     operation = db.Column(db.String(32), nullable=False)
     dst = db.Column(db.String(32), nullable=False)
@@ -62,8 +62,8 @@ calls_schema = CallSchema(many=True)
 def get_ip():
     if request.method == 'GET':
         user_name = request.form.get("name")
-        result = 0
-        user_info = Users.query.filter_by(name=user_name).first()
+        result = ""
+        user_info = User.query.filter_by(name=user_name).first()
         if user_info:
             result = user_info.ip
         print('sending:', result)
@@ -76,7 +76,7 @@ def login():
         user_name = request.form.get("name")
         password = request.form.get("password")
         result = 'False'
-        user_info = Users.query.filter_by(name=user_name, password=password).first()
+        user_info = User.query.filter_by(name=user_name, password=password).first()
         if user_info:
             print(user_info.name, user_info.ip)
             result = "True"
@@ -93,10 +93,10 @@ def register():
         password = request.form.get("password")
         ip = request.remote_addr
         result = 'False'
-        user_info = Users.query.filter_by(name=user_name).first()
+        user_info = User.query.filter_by(name=user_name).first()
         # check if name already exist
         if not user_info:
-            new_user = Users(name=user_name, password=password, ip=ip)
+            new_user = User(name=user_name, password=password, ip=ip)
             db.session.add(new_user)
             db.session.commit()
             print("new user:", new_user.id, user_name, password, ip)
@@ -105,87 +105,86 @@ def register():
         return jsonify(result)
 
 
-@app.route('/call', methods=['POST', 'GET', 'DELETE', 'PUT'])
-def call():
-    if request.method == 'GET':
+@app.route('/accept', methods=['PUT'])
+def accept():
+    if request.method == 'PUT':
         dst = request.form.get("dst")
         src = request.form.get("src")
-        result = "False"
-
-        if src and dst:
-            data = Call.query.filter_by(dst=dst, src=src).first()
-            if data:
-                # print(data.src, data.operation, data.dst)
-                result = data.operation
-
-        elif dst:
-            row = Call.query.filter_by(dst=dst).first()
-            if row:
-                result = f"you got a call from:{row.src}"
-            # print(data.src, data.operation, data.dst )
-        # print('sending:', result)
+        op = request.form.get("operation")
+        result = ""
+        row = Call.query.filter_by(dst=dst, src=src).first()
+        if row:
+            if row.operation == 'calling':
+                row.operation = op
+                db.session.commit()
+                result = 'True'
+        print(f'sending {result}')
         return jsonify(result)
 
+
+@app.route('/stop_call', methods=['DELETE'])
+def stop_call():
+    if request.method == 'DELETE':
+        name = request.form.get("name")
+        op = request.form.get("operation")
+        result = "there's nothing to delete"
+
+        if op == 'call':
+            row = Call.query.filter_by(src=name).first()
+            if not row:
+                row = Call.query.filter_by(dst=name).first()
+            if row:
+                db.session.delete(row)
+                db.session.commit()
+                result = 'call stopped'
+        else:  # calling
+            row = Call.query.filter_by(src=name).first()
+            if row:
+                db.session.delete(row)
+                db.session.commit()
+                result = 'calling stopped'
+        print('sending:', result)
+        return jsonify(result)
+
+
+@app.route('/call', methods=['POST'])
+def call():
     if request.method == 'POST':
         src = request.form.get("src")
         operation = request.form.get("operation")
         dst = request.form.get("dst")
         result = 'call already exists'
-        try:
+        raw = Call.query.filter_by(src=src).first()
+        if not raw:
             new_call = Call(src=src, operation=operation, dst=dst)
             db.session.add(new_call)
             db.session.commit()
             print("new_call:", new_call.id, src, operation, dst)
             result = "True"
-        except:
-            pass
         print('sending:', result)
         return jsonify(result)
 
-    if request.method == 'PUT':
-        src = request.form.get("src")
-        operation = request.form.get("operation")
+
+@app.route('/check', methods=['GET'])
+def check_connection():
+    if request.method == 'GET':
         dst = request.form.get("dst")
-        row = Call.query.filter_by(src=src, dst=dst).first()
-        print(row.operation)
-        row.operation = operation
-        db.session.commit()
-        result = 'go to chat'
-        print('sending:', result)
-        return jsonify(result)
-
-    if request.method == 'DELETE':
         src = request.form.get("src")
-        operation = request.form.get("operation")
-        dst = request.form.get("dst")
-        result = "you are not a part of any connection"
-        print('delete method:', src, operation, dst)
-
-        if src:
-            row = Call.query.filter_by(src=src).first()
-            if row:
-                db.session.delete(row)
-                db.session.commit()
-                if row.operation == 'calling':
-                    result = 'calling stopped'
-                else:
-                    result = 'call stopped'
-                print(result)
-
-        if dst:
+        result = ""
+        # check if in chat
+        if src and dst:
+            data = Call.query.filter_by(dst=dst, src=src).first()
+            if data:
+                result = data.operation
+        # check if being called; 'calling'
+        elif dst:
             row = Call.query.filter_by(dst=dst).first()
             if row:
-                db.session.delete(row)
-                db.session.commit()
-                result = 'call stopped'
-                print(result)
-
-        print('sending:', result)
+                result = row.src
+        # print('sending:', result)
         return jsonify(result)
-
-    # driver function
 
 
 if __name__ == '__main__':
-    # db.create_all(app=app)
+    db.create_all(app=app)
     app.run(debug=True, host='0.0.0.0', port=5000)
