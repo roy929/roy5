@@ -1,7 +1,7 @@
 import socket
 import pyaudio
 from threading import Thread
-
+from connection import handle_server
 
 # record
 CHUNK = 1024  # 512
@@ -10,7 +10,7 @@ CHANNELS = 1
 RATE = 20000
 # socket
 SERVER_PORT = 50002
-SERVER_IP = "127.0.0.1"
+SERVER_IP = handle_server.host_ip
 
 
 # connect to server and start stream

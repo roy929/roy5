@@ -1,9 +1,21 @@
 import requests
 import time
+import socket
 
-server_ip = '127.0.0.1'
-server_port = 5000
-flask_url = f'http://{server_ip}:{server_port}'
+host_name = 'DESKTOP-DVCLU4L'
+# host_name = socket.gethostname()
+host_ip = socket.gethostbyname(host_name)
+flask_port = 5000
+flask_url = f'http://{host_ip}:{flask_port}'
+
+
+def print_info():
+    print(f'host_name = {host_name}')
+    print(f'server ip = {host_ip}')
+    print(f'server port = {flask_port}')
+
+
+print_info()
 
 
 # returns ip or 0 if user doesnt exist
