@@ -3,22 +3,19 @@ import time
 
 server_ip = '127.0.0.1'
 server_port = 5000
-users_url = f'http://{server_ip}:{server_port}/users'
-call_url = f'http://{server_ip}:{server_port}/call'
+flask_url = f'http://{server_ip}:{server_port}'
 
 
-# returns ip or False if user doesnt exist
+# returns ip or 0 if user doesnt exist
 def get_user_ip(name):
     data = {'name': name}
-    r = requests.get(users_url, data=data)
-    if r.json() == 'False':
-        return False
+    r = requests.get(flask_url + '/get_ip', data=data)
     return r.json()  # r.status_code
 
 
 def login(name, pas):
     data = {'name': name, 'password': pas}
-    r = requests.get(users_url, data=data)
+    r = requests.get(flask_url + '/login', data=data)
     if r.json() == 'True':
         return True
     return False
@@ -26,7 +23,7 @@ def login(name, pas):
 
 def register(name, pas):
     data = {'name': name, 'password': pas}
-    r = requests.post(users_url, data=data)
+    r = requests.post(flask_url + '/register', data=data)
     if r.json() == 'True':
         return True
     return False
@@ -35,7 +32,7 @@ def register(name, pas):
 # post calling
 def call(src_name, dst_name):
     new_call = {'src': src_name, 'operation': 'calling', 'dst': dst_name}
-    r = requests.post(call_url, data=new_call)
+    r = requests.post(flask_url + '/call', data=new_call)
     # print(r.json())  # r.status_code
     if r.json() == 'True':
         return True
@@ -43,59 +40,55 @@ def call(src_name, dst_name):
 
 
 # change to calling to call
-def accept_call(src_name, dst_name):
+def accept(src_name, dst_name):
     new_call = {'src': src_name, 'operation': 'call', 'dst': dst_name}
-    r = requests.put(call_url, data=new_call)
-    if r.json() != 'go to chat':
-        print(r.json())
+    r = requests.put(flask_url + '/accept', data=new_call)
+    return r.json()
     # print(r.json())  # r.status_code
 
 
 def look_for_call(dst_name):
     check_call = {'operation': 'calling', 'dst': dst_name}
-    r = requests.get(call_url, data=check_call)
-    # print(r.json())  # r.status_code
-    return r.json()  # return msg with name of src || False
+    r = requests.get(flask_url + '/check', data=check_call)
+    return r.json()  # src name || ""
 
 
 def who_is_calling(dst_name):
-    ans = look_for_call(dst_name)
-    name = ans.split(':')[1]
-    return name
+    name = look_for_call(dst_name)
+    if name:
+        return name
 
 
-# check if call accepted or call still alive
+# check if call accepted or if call still alive
 def is_in_chat(src, dst):
     data = {'src': src, 'dst': dst}
-    r = requests.get(call_url, data=data)
+    r = requests.get(flask_url + '/check', data=data)
     # json = operation
-    if r.json() == 'call':
-        return True
-    # print(r.json())
-    return False
+    return r.json()  # operation
 
 
 # when calling
-def stop_calling(src_name):
-    msg = {'src': src_name, 'operation': 'calling'}
-    r = requests.delete(call_url, data=msg)
+def stop_calling(name):
+    msg = {'name': name, 'operation': 'calling'}
+    r = requests.delete(flask_url + "/stop_call", data=msg)
     print(r.json())  # r.status_code
 
 
+# when in chat
 def stop_chat(name):
-    check_call = {'src': name, 'operation': 'call', 'dst': name}
-    r = requests.delete(call_url, data=check_call)
+    check_call = {'name': name, 'operation': 'call'}
+    r = requests.delete(flask_url + "/stop_call", data=check_call)
     print(r.json())  # r.status_code
 
 
 if __name__ == '__main__':
     my_name = 'kkk'
     while True:
-        if look_for_call(my_name) != 'False':
+        if look_for_call(my_name):
             break
     user = who_is_calling(my_name)
     print(user)
-    accept_call(my_name, user)
+    accept(my_name, user)
 
     time.sleep(7)
     stop_chat(my_name)

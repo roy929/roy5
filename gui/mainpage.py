@@ -50,8 +50,7 @@ class MainPage:
         self.user_to_call.delete(0, len(user_name))
         if len(user_name) > 2 and user_name != self.MY_USER_NAME:
             user_ip = handle_server.get_user_ip(user_name)
-            # replace ip with real check if the user exists
-            if user_ip:
+            if user_ip:  # checks if the user exists
                 # start call
                 t = Thread(target=self.run, args=(user_name,))
                 t.start()
@@ -69,7 +68,7 @@ class MainPage:
             if time.time() > max_time:
                 self.timed_out = True
                 return False
-            if handle_server.is_in_chat(self.MY_USER_NAME, user_name):
+            if handle_server.is_in_chat(self.MY_USER_NAME, user_name) == 'call':
                 return True
             time.sleep(0.5)
         return False
