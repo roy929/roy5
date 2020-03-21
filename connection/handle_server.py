@@ -2,8 +2,8 @@ import requests
 import time
 import socket
 
-# server_ip = '127.0.0.1'
-hostname = 'DESKTOP-EVCG5AF'
+# hostname = 'DESKTOP-EVCG5AF'
+hostname = socket.gethostname()  # '127.0.0.1'
 server_ip = socket.gethostbyname(hostname)
 server_port = 5000
 flask_url = f'http://{server_ip}:{server_port}'
