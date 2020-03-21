@@ -110,17 +110,12 @@ class MainPage:
     def close_chat(self):
         handle_server.stop_chat(self.MY_USER_NAME)
         voice.end()
+        self.in_chat_frame.forget()
+        self.start_frame.pack()
 
     def stop_calling(self):
         handle_server.stop_calling(self.MY_USER_NAME)
         self.cancel = True
-
-
-# this is normal chat
-# def type_chat():
-#     from data.type_chat_client import Client
-#     c = Client()
-#     c.start()
 
 
 if __name__ == '__main__':
